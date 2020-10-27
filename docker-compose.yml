@@ -1,0 +1,42 @@
+version: "3"
+services:
+  phppoc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PORT: 80
+    ports:
+      - 8080:80
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - phppoc_pg
+    environment:
+      DATABASE_URL: postgres://postgres:docker@182.28.1.2/poc
+      DEBUG: 'true'
+    networks:
+      phppoc_net:
+        ipv4_address: 182.28.1.1
+
+  phppoc_pg:
+    image: postgres:12.3-alpine
+    ports:
+    - 8432:5432
+    volumes:
+      - db_data:/var/lib/postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: poc
+    networks:
+      phppoc_net:
+        ipv4_address: 182.28.1.2  
+
+volumes:
+  db_data: {}
+networks:
+  phppoc_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 182.28.0.0/16
